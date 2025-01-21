@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Nominee schema (embedded document in user schema)
 const nomineeSchema = new mongoose.Schema({
