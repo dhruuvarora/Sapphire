@@ -26,7 +26,7 @@ const accountDetailsSchema = new mongoose.Schema({
 });
 
 // Main User schema
-const userSchema = new mongoose.Schema({
+const individualSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   phoneNumber: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
@@ -52,6 +52,6 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true }); // Automatically adds createdAt and updatedAt fields
 
 // Create and export the User model
-const User = mongoose.model('User', userSchema);
+const Individual = mongoose.model('Individual', individualSchema);
 
-module.exports = User;
+export default Individual;
