@@ -4,6 +4,7 @@ import connectDB from "./utils/db.js";
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 import compression from "compression";
+import userRoute from './Routes/user.route.js'
 
 
 // Load environment variables
@@ -48,7 +49,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-
+app.use('/api',userRoute)
 
 
 
