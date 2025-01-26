@@ -1,0 +1,372 @@
+<!-- views/user/newsFeed.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Feed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2.5em;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px;
+        }
+
+        li {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        p {
+            font-size: 1em;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Optional: Adding a 'no news' message style */
+        .no-news {
+            text-align: center;
+            font-size: 1.5em;
+            color: #888;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Latest News</h1>
+    <div id="news-container">
+        <% if (news.length === 0) { %>
+            <p class="no-news">No news posted yet.</p>
+        <% } else { %>
+            <ul id="news-list">
+                <% news.forEach(function(newsItem) { %>
+                    <li id="news-<%= newsItem._id %>">
+                        <h2><%= newsItem.title %></h2>
+                        <p><%= newsItem.description %></p>
+                        <% if (newsItem.image) { %>
+                            <img src="/uploads/<%= newsItem.image.split('/').pop() %>" alt="<%= newsItem.title %>">
+                        <% } %>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+    </div>
+
+    Include Socket.io client-side script -->
+    <!-- <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Establish connection to the server
+        const socket = io.connect();
+
+        // Listen for news updates and prepend them to the news list
+        socket.on('news_update', function(newsItem) {
+            const newsList = document.getElementById('news-list');
+            const newNewsItem = document.createElement('li');
+            newNewsItem.innerHTML = `
+                <h2>${newsItem.title}</h2>
+                <p>${newsItem.description}</p>
+                ${newsItem.image ? `<img src="/uploads/${newsItem.image.split('/').pop()}" alt="${newsItem.title}">` : ''}
+            `;
+            newsList.prepend(newNewsItem);  // Add the new news at the top of the list
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+<!-- newsFeed.ejs -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Feed</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .news-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f4f4f4;
+            border-radius: 5px;
+        }
+        .news-item h2 {
+            margin: 0;
+        }
+        .news-item p {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Latest News</h1>
+    <div id="news-container">
+        <% news.forEach(function(newsItem) { %>
+            <div class="news-item">
+                <h2><%= newsItem.title %></h2>
+                <p><%= newsItem.description %></p>
+                <% if (newsItem.image) { %>
+                    <img src="/<%= newsItem.image %>" alt="News Image" width="200">
+                <% } %>
+            </div>
+        <% }); %>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();  // Connect to Socket.IO server
+
+        // Listen for the newNews event and update the news feed
+        socket.on('newNews', function(newNews) {
+            const newsContainer = document.getElementById('news-container');
+            const newsItem = document.createElement('div');
+            newsItem.classList.add('news-item');
+            newsItem.innerHTML = `
+                <h2>${newNews.title}</h2>
+                <p>${newNews.description}</p>
+                ${newNews.image ? `<img src="/${newNews.image}" alt="News Image" width="200">` : ''}
+            `;
+            newsContainer.prepend(newsItem); // Prepend new news at the top
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+<!-- views/admin/newsFeed.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Feed</title>
+    <style>
+        /* New, sleek, and modern design */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e); /* Blackish gradient */
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 36px;
+            color: #fff;
+        }
+
+        #news-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95); /* Light semi-transparent white */
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-item {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-item h2 {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+            text-align: center;
+        }
+
+        .news-item img {
+            width: 80%;
+            max-width: 500px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-item p {
+            font-size: 16px;
+            color: #555;
+            margin-top: 15px;
+            text-align: center;
+            max-height: 120px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .news-item .read-more {
+            color: #007bff; /* Blue read more button */
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .news-item .date {
+            font-size: 14px;
+            color: #777;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Notification style */
+        .notification {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745; /* Green notification */
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Latest News</h1>
+
+    <div id="news-container">
+        <% news.forEach(function(newsItem) { %>
+            <div class="news-item" id="news-item-<%= newsItem._id %>">
+                <h2><%= newsItem.title %></h2>
+
+                <% if (newsItem.image) { %>
+                    <img src="/<%= newsItem.image %>" alt="News Image">
+                <% } %>
+
+                <p id="description-<%= newsItem._id %>">
+                    <%= newsItem.description.length > 150 ? newsItem.description.substring(0, 150) + '...' : newsItem.description %>
+                    <span class="read-more" onclick="toggleDescription('<%= newsItem._id %>')">
+                        <%= newsItem.description.length > 150 ? 'Read more' : '' %>
+                    </span>
+                </p>
+
+                <!-- Display date in a readable format -->
+                <p class="date">
+                    <%= new Date(newsItem.date).toLocaleString() %>
+                </p>
+            </div>
+        <% }); %>
+    </div>
+
+    <!-- Notification div (hidden by default) -->
+    <div id="notification" class="notification" onclick="scrollToTop()">Latest news posted!</div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();  // Connect to Socket.IO server
+        const notification = document.getElementById('notification');
+
+        // Listen for the newNews event and update the news feed
+        socket.on('newNews', function(newNews) {
+            const newsContainer = document.getElementById('news-container');
+            const newsItem = document.createElement('div');
+            newsItem.classList.add('news-item');
+            newsItem.innerHTML = `
+                <h2>${newNews.title}</h2>
+                ${newNews.image ? `<img src="/${newNews.image}" alt="News Image">` : ''}
+                <p id="description-${newNews._id}">
+                    ${newNews.description.length > 150 ? newNews.description.substring(0, 150) + '...' : newNews.description}
+                    ${newNews.description.length > 150 ? '<span class="read-more" onclick="toggleDescription(`' + newNews._id + ')">Read more</span>' : ''}
+                </p>
+                <p class="date">${new Date(newNews.date).toLocaleString()}</p>
+            `;
+            newsContainer.prepend(newsItem); // Prepend new news at the top
+
+            // Show the notification when new news is posted
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);  // Show for 3 seconds
+        });
+
+        // Function to toggle description
+        function toggleDescription(newsId) {
+            const descriptionElement = document.getElementById('description-' + newsId);
+            const newsItemElement = document.getElementById('news-item-' + newsId);
+
+            // If the card is already expanded, collapse it
+            if (descriptionElement.style.maxHeight !== 'none') {
+                descriptionElement.style.maxHeight = 'none';
+                descriptionElement.innerHTML = `${descriptionElement.innerText} <span class="read-more" onclick="toggleDescription('${newsId}')">Read less</span>`;
+            } else {
+                descriptionElement.style.maxHeight = '120px'; // Collapse the description
+                descriptionElement.innerHTML = `${descriptionElement.innerText.substring(0, 150)}... <span class="read-more" onclick="toggleDescription('${newsId}')">Read more</span>`;
+            }
+        }
+
+        // Function to scroll to the top of the page when notification is clicked
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Smooth scroll to the top
+            });
+        }
+    </script>
+
+</body>
+</html>
