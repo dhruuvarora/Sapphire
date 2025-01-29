@@ -1,0 +1,376 @@
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Feed</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container { margin-top: 50px; margin-bottom: 50px; }
+        .card { 
+            border-radius: 15px; 
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #343a40;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px;
+        }
+        .img-blog {
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 5%;
+        }
+        .new-blog-animation {
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-5">Blog Feed</h1>
+        <div id="blog-container">
+            <% if (blogs.length === 0) { %>
+                <div class="alert alert-info">No blogs posted yet.</div>
+            <% } else { %>
+                <% blogs.forEach(blog => { %>
+                    <div class="card" id="blog-<%= blog._id %>">
+                        <div class="card-header">
+                            <h2 class="card-title mb-0"><%= blog.title %></h2>
+                            <small class="text-light">
+                                Posted on <%= new Date(blog.createdAt).toLocaleDateString() %>
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text"><%= blog.content %></p>
+                            
+                            <% if (blog.images && blog.images.length > 0) { %>
+                                <div id="carousel-<%= blog._id %>" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <% blog.images.forEach((image, index) => { %>
+                                            <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                                                <img src="/uploads/<%= image %>" 
+                                                     class="d-block w-100 img-blog" 
+                                                     alt="Blog image">
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                    <% if (blog.images.length > 1) { %>
+                                        <button class="carousel-control-prev" type="button" 
+                                                data-bs-target="#carousel-<%= blog._id %>" 
+                                                data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" 
+                                                data-bs-target="#carousel-<%= blog._id %>" 
+                                                data-bs-slide="next">
+                                            <span class="carousel-control-next-icon"></span>
+                                        </button>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        
+        // Function to create a carousel HTML for blog images
+        function createCarouselHTML(blog) {
+            if (!blog.images || blog.images.length === 0) return '';
+            
+            let carouselHTML = `
+                <div id="carousel-${blog._id}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">`;
+            
+            blog.images.forEach((image, index) => {
+                carouselHTML += `
+                    <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                        <img src="/uploads/${image}" 
+                             class="d-block w-100 img-blog" 
+                             alt="Blog image">
+                    </div>`;
+            });
+            
+            if (blog.images.length > 1) {
+                carouselHTML += `
+                    <button class="carousel-control-prev" type="button" 
+                            data-bs-target="#carousel-${blog._id}" 
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" 
+                            data-bs-target="#carousel-${blog._id}" 
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>`;
+            }
+            
+            carouselHTML += `
+                    </div>
+                </div>`;
+            
+            return carouselHTML;
+        }
+
+        // Function to create and append new blog HTML
+        function addNewBlog(blog) {
+            const blogContainer = document.getElementById('blog-container');
+            const noBlogs = blogContainer.querySelector('.alert-info');
+            if (noBlogs) {
+                noBlogs.remove();
+            }
+
+            const blogHTML = `
+                <div class="card new-blog-animation" id="blog-${blog._id}">
+                    <div class="card-header">
+                        <h2 class="card-title mb-0">${blog.title}</h2>
+                        <small class="text-light">
+                            Posted on ${new Date(blog.createdAt).toLocaleDateString()}
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">${blog.content}</p>
+                        ${createCarouselHTML(blog)}
+                    </div>
+                </div>`;
+
+            // Add the new blog at the beginning of the container
+            blogContainer.insertAdjacentHTML('afterbegin', blogHTML);
+
+            // Initialize any new carousels
+            if (blog.images && blog.images.length > 0) {
+                new bootstrap.Carousel(document.getElementById(`carousel-${blog._id}`));
+            }
+        }
+
+        // Listen for new blog posts
+        socket.on('new-blog', (blog) => {
+            addNewBlog(blog);
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Feed</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container { margin-top: 50px; margin-bottom: 50px; }
+        .card { 
+            border-radius: 15px; 
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #343a40;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px;
+        }
+        .card-title {
+            margin-bottom: 5px !important;
+        }
+        .timestamp {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+        .img-blog {
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 5%;
+        }
+        .new-blog-animation {
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-5">Blog Feed</h1>
+        <div id="blog-container">
+            <% if (blogs.length === 0) { %>
+                <div class="alert alert-info">No blogs posted yet.</div>
+            <% } else { %>
+                <% blogs.forEach(blog => { %>
+                    <div class="card" id="blog-<%= blog._id %>">
+                        <div class="card-header">
+                            <h2 class="card-title"><%= blog.title %></h2>
+                            <small class="timestamp">
+                                Posted on <%= new Date(blog.createdAt).toLocaleDateString() %> at 
+                                <%= new Date(blog.createdAt).toLocaleTimeString([], { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                }) %>
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text"><%= blog.content %></p>
+                            
+                            <% if (blog.images && blog.images.length > 0) { %>
+                                <div id="carousel-<%= blog._id %>" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <% blog.images.forEach((image, index) => { %>
+                                            <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                                                <img src="/uploads/<%= image %>" 
+                                                     class="d-block w-100 img-blog" 
+                                                     alt="Blog image">
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                    <% if (blog.images.length > 1) { %>
+                                        <button class="carousel-control-prev" type="button" 
+                                                data-bs-target="#carousel-<%= blog._id %>" 
+                                                data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" 
+                                                data-bs-target="#carousel-<%= blog._id %>" 
+                                                data-bs-slide="next">
+                                            <span class="carousel-control-next-icon"></span>
+                                        </button>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        
+        // Function to format date and time
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' at ' + 
+                   date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Function to create carousel HTML for blog images
+        function createCarouselHTML(blog) {
+            if (!blog.images || blog.images.length === 0) return '';
+            
+            let carouselHTML = `
+                <div id="carousel-${blog._id}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">`;
+            
+            blog.images.forEach((image, index) => {
+                carouselHTML += `
+                    <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                        <img src="/uploads/${image}" 
+                             class="d-block w-100 img-blog" 
+                             alt="Blog image">
+                    </div>`;
+            });
+            
+            if (blog.images.length > 1) {
+                carouselHTML += `
+                    <button class="carousel-control-prev" type="button" 
+                            data-bs-target="#carousel-${blog._id}" 
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" 
+                            data-bs-target="#carousel-${blog._id}" 
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>`;
+            }
+            
+            carouselHTML += `
+                    </div>
+                </div>`;
+            
+            return carouselHTML;
+        }
+
+        // Function to create and append new blog HTML
+        function addNewBlog(blog) {
+            const blogContainer = document.getElementById('blog-container');
+            const noBlogs = blogContainer.querySelector('.alert-info');
+            if (noBlogs) {
+                noBlogs.remove();
+            }
+
+            const blogHTML = `
+                <div class="card new-blog-animation" id="blog-${blog._id}">
+                    <div class="card-header">
+                        <h2 class="card-title">${blog.title}</h2>
+                        <small class="timestamp">
+                            Posted on ${formatDateTime(blog.createdAt)}
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">${blog.content}</p>
+                        ${createCarouselHTML(blog)}
+                    </div>
+                </div>`;
+
+            blogContainer.insertAdjacentHTML('afterbegin', blogHTML);
+
+            if (blog.images && blog.images.length > 0) {
+                new bootstrap.Carousel(document.getElementById(`carousel-${blog._id}`));
+            }
+        }
+
+        // Listen for new blog posts
+        socket.on('new-blog', (blog) => {
+            addNewBlog(blog);
+        });
+    </script>
+</body>
+</html>
