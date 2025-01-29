@@ -1,0 +1,32 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -c tailwind.config.mjs -i ./src/input.css -o ./dist/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "compression": "^1.7.5",
+    "cookie-parser": "^1.4.7",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.16",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "cloudinary": "^2.5.1",
+    "eslint": "^9.18.0",
+    "mongoose": "^8.9.5",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2"
+  }
+}

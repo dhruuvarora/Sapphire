@@ -1,0 +1,232 @@
+<!-- views/admin/addNews.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add News</title>
+</head>
+<body>
+    <h1>Add News</h1>
+    <form action="/admin/add" method="POST" enctype="multipart/form-data">
+        <label for="title">News Title:</label>
+        <input type="text" name="title" id="title" required>
+
+        <label for="description">News Description:</label>
+        <textarea name="description" id="description" required></textarea>
+
+        <label for="image">Upload Image:</label>
+        <input type="file" name="image" id="image" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html> -->
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add News</title>
+    <style>
+        /* Your custom styles */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-container input, .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-container button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e1f7d5;
+            color: #4CAF50;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Add News</h1>
+
+    <% if (message) { %>
+        <div class="message">
+            <%= message %>
+        </div>
+    <% } %>
+
+    <div class="form-container">
+        <form action="/admin/add" method="POST" enctype="multipart/form-data">
+            <input type="text" name="title" placeholder="Title" required><br>
+            <textarea name="description" placeholder="Description" required></textarea><br>
+            <input type="file" name="image"><br>
+            <button type="submit">Post News</button>
+        </form>
+    </div>
+
+</body>
+</html> -->
+
+<!-- views/admin/addNews.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add News</title>
+    <style>
+        /* Improved Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            width: 100%;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .form-container input,
+        .form-container textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .form-container textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            padding: 15px;
+            background-color: #e1f7d5;
+            color: #4CAF50;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .notification {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 9999;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Add News</h1>
+
+    <% if (message) { %>
+        <div class="message">
+            <%= message %>
+        </div>
+    <% } %>
+
+    <div class="container">
+        <div class="form-container">
+            <form action="/admin/add" method="POST" enctype="multipart/form-data">
+                <input type="text" name="title" placeholder="Title" required><br>
+                <textarea name="description" placeholder="Description" required></textarea><br>
+                <input type="file" name="image"><br>
+                <button type="submit">Post News</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification div (hidden by default) -->
+    <div id="notification" class="notification">Latest news posted!</div>
+
+    <script>
+        // Show notification when new news is posted (after successful form submission)
+        const notification = document.getElementById('notification');
+
+        // Listen for the event when new news is posted
+        if (window.socket) {
+            window.socket.on('newNews', function(data) {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);  // Show for 3 seconds
+            });
+        }
+    </script>
+
+</body>
+</html>
